@@ -2,7 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/CircularBuffer.iml" filepath="$PROJECT_DIR$/CircularBuffer.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/CircularBuffer.iml" filepath="$PROJECT_DIR$/.idea/modules/CircularBuffer.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/CircularBuffer_main.iml" filepath="$PROJECT_DIR$/.idea/modules/CircularBuffer_main.iml" group="CircularBuffer" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/CircularBuffer_test.iml" filepath="$PROJECT_DIR$/.idea/modules/CircularBuffer_test.iml" group="CircularBuffer" />
     </modules>
   </component>
 </project>
