@@ -9,7 +9,9 @@ public class Main {
 
     public static void main(String[] args) {
 
-        IBuffer buffer = new RingBuffer(5, false);
-        buffer.readOfBuffer(5);
+        IBuffer<Byte> buffer = new RingBuffer<>(7, false);
+        buffer.writeInBuffer(new Byte[]{1,2,3,4,5});
+        buffer.readOfBuffer(2);
+        buffer.writeInBuffer(new Byte[]{6,7,8,9,10});
     }
 }

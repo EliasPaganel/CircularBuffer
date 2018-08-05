@@ -1,9 +1,9 @@
 package classes;
 
-public interface IBuffer {
+public interface IBuffer<T> {
 
     int getLengthBuffer();
-    void writeInBuffer(byte[] newData);
-    byte [] readOfBuffer(int desiredQuantity);
+    void writeInBuffer(T[] newData);
+    T [] readOfBuffer(int desiredQuantity);
 
 }

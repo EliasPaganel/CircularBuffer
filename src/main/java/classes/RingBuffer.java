@@ -1,15 +1,18 @@
 package classes;
 
-import java.util.Arrays;
-import org.slf4j.*;
 
-public class RingBuffer implements IBuffer {
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Arrays;
+
+public class RingBuffer<T> implements IBuffer<T> {
 
     private static final Logger log = LoggerFactory.getLogger(RingBuffer.class);
 
     //fields
     private int lengthBuffer;
-    private byte[] buffer;
+    private T[] buffer;
 
     //Индекс записи
     private int writingIndex;
@@ -28,7 +31,7 @@ public class RingBuffer implements IBuffer {
         if(lengthBuffer < 2)
             throw new IllegalArgumentException("Длина буфера не может быть меньше 2 элементов");
         this.lengthBuffer = lengthBuffer;
-        buffer = new byte[this.lengthBuffer];
+        buffer = (T[])new Object[this.lengthBuffer];
         this.mashingData = mashingData;
         writingIndex = readingIndex = -1; //Индексы будут отражать где последний раз была запись или чтение
         lastOperation = LastOperation.UNDEFINED;
@@ -49,7 +52,7 @@ public class RingBuffer implements IBuffer {
 
     //functions
     @Override
-    public void writeInBuffer(byte[] newData) {
+    public void writeInBuffer(T[] newData) {
         log.debug("Данные, ктр нужно записать в буфер:");
         showContent(newData);
 
@@ -74,10 +77,10 @@ public class RingBuffer implements IBuffer {
     }
 
     @Override
-    public byte[] readOfBuffer(int desiredQuantity) {
+    public T[] readOfBuffer(int desiredQuantity) {
 
         log.info("Обращение к буферу на прочтение {} элем.", desiredQuantity);
-        byte[] tempArray = new byte[desiredQuantity];
+        T[] tempArray = (T[])new Object[desiredQuantity];
         int tempIndex;
         int lastReadingIndex = -1;
 
@@ -96,7 +99,7 @@ public class RingBuffer implements IBuffer {
         log.debug("Удалось прочитать {} элем.", ++lastReadingIndex);
 
         if(lastReadingIndex == 0)
-            return new byte[0];
+            return (T[])new Object[0];
 
         if(lastReadingIndex < desiredQuantity)
             tempArray = Arrays.copyOfRange(tempArray,0, lastReadingIndex);
@@ -169,17 +172,16 @@ public class RingBuffer implements IBuffer {
             throw new IndexOutOfBoundsException("Индекс чтения за пределами буфера");
     }
 
-    public void showContent(byte[] content) {
+    public void showContent(T[] content) {
         if(content.length == 0){
             log.debug("Массив пуст.");
             return;
         }
         StringBuilder s = new StringBuilder("[");
-        for (byte elem : content) {
+        for (T elem : content) {
             s.append(elem).append(", ");
         }
         s.replace(s.length() - 2, s.length() ,"]");
-        log.debug("{} - длина массива: {}", String.valueOf(s), s.length());
+        log.debug("{} - длина массива: {}", String.valueOf(s), content.length);
     }
-
 }
