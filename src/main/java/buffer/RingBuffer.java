@@ -1,15 +1,17 @@
-package classes;
+package buffer;
 
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Array;
 import java.util.Arrays;
 
-public class RingBuffer<T> implements IBuffer<T> {
+public class RingBuffer<T extends Number> implements IBuffer<T> {
 
     private static final Logger log = LoggerFactory.getLogger(RingBuffer.class);
 
+    private Class<T> cl;
     //fields
     private int lengthBuffer;
     private T[] buffer;
@@ -24,14 +26,18 @@ public class RingBuffer<T> implements IBuffer<T> {
     private LastOperation lastOperation;
 
     //constructor
-    public RingBuffer(int lengthBuffer, boolean mashingData) {
+    /**@param cl объект типа класс, хранящий в себе тип обобщения
+     * @param lengthBuffer длина буфера
+     * @param mashingData переменная устанавливающая при true - режим перезаписи непрочитанных данных, при false - обратное*/
+    public RingBuffer(Class<T> cl, int lengthBuffer, boolean mashingData) {
         log.debug("При создании буфера заданы следующие параметры: длина буфера - {}, " +
                 "а способ записи данных затирание - {}",lengthBuffer, mashingData);
 
         if(lengthBuffer < 2)
             throw new IllegalArgumentException("Длина буфера не может быть меньше 2 элементов");
+        this.cl = cl;
         this.lengthBuffer = lengthBuffer;
-        buffer = (T[])new Object[this.lengthBuffer];
+        buffer = (T[])Array.newInstance(this.cl, this.lengthBuffer);
         this.mashingData = mashingData;
         writingIndex = readingIndex = -1; //Индексы будут отражать где последний раз была запись или чтение
         lastOperation = LastOperation.UNDEFINED;
@@ -52,7 +58,7 @@ public class RingBuffer<T> implements IBuffer<T> {
 
     //functions
     @Override
-    public void writeInBuffer(T[] newData) {
+    public synchronized void writeInBuffer(T[] newData) {
         log.debug("Данные, ктр нужно записать в буфер:");
         showContent(newData);
 
@@ -69,18 +75,16 @@ public class RingBuffer<T> implements IBuffer<T> {
                 break;
             }
         }
-        // какой поток работал с этим
-//        log.debug();
         log.debug("Удалось записать {} эл", ++lastWritingIndex);
         log.debug("Состояние буфера после записи:");
         showContent(buffer);
     }
 
     @Override
-    public T[] readOfBuffer(int desiredQuantity) {
+    public synchronized T[] readOfBuffer(int desiredQuantity) {
 
         log.info("Обращение к буферу на прочтение {} элем.", desiredQuantity);
-        T[] tempArray = (T[])new Object[desiredQuantity];
+        T[] tempArray = (T[])Array.newInstance(cl, desiredQuantity);
         int tempIndex;
         int lastReadingIndex = -1;
 
@@ -99,7 +103,7 @@ public class RingBuffer<T> implements IBuffer<T> {
         log.debug("Удалось прочитать {} элем.", ++lastReadingIndex);
 
         if(lastReadingIndex == 0)
-            return (T[])new Object[0];
+            return (T[])Array.newInstance(cl,0);
 
         if(lastReadingIndex < desiredQuantity)
             tempArray = Arrays.copyOfRange(tempArray,0, lastReadingIndex);
@@ -172,7 +176,7 @@ public class RingBuffer<T> implements IBuffer<T> {
             throw new IndexOutOfBoundsException("Индекс чтения за пределами буфера");
     }
 
-    public void showContent(T[] content) {
+    private void showContent(T[] content) {
         if(content.length == 0){
             log.debug("Массив пуст.");
             return;

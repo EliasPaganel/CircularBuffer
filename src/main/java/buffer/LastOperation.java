@@ -1,4 +1,4 @@
-package classes;
+package buffer;
 
 public enum LastOperation {
     UNDEFINED,
